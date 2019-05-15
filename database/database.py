@@ -373,18 +373,7 @@ database_type_dict = {
 
 
 def get_sqlite3_db():
-    sqlite3_path = 'sqlite:{}'.format('///../flymouse.db')
-    db = DataBase(database_type=3, sqlite3_path=sqlite3_path)
-    db.init_database()
-    return db
-
-
-def get_test_db():
-    # 'sqlite+pysqlcipher3://:testing@/foo.db'
-    import os
-    sqlite3_path = 'sqlite:{}'.format(f'///{basePath}/aa.db')
-    # sqlite3_path = 'sqlite+pysqlcipher://:testing@/foo.db'
-    print(os.path.abspath(sqlite3_path))
+    sqlite3_path = 'sqlite:{}'.format(f'///{path.join(basePath, "flymouse.db")}')
     db = DataBase(database_type=3, sqlite3_path=sqlite3_path)
     db.init_database()
     return db
