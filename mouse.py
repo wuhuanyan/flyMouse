@@ -125,6 +125,8 @@ class MouseControler:
         :param button_type: Button.left/Button.right
         :param click_num: 单击次数 int
         :param check_click_point_color: 是否校验单击坐标颜色 bool
+        :param success_func: 成功回调函数 字符串 函数写在mouse.py中或import
+        :param fail_func: 失败回调函数 字符串 函数写在mouse.py中或import
         :return:
         """
         retry_num = kwargs.get('retry_num', 3)
@@ -134,7 +136,9 @@ class MouseControler:
         check_click_point_color = kwargs.get('check_click_point_color', False)
         button_type = kwargs.get('button_type', 'left')
         click_num = kwargs.get('click_num', 1)
-        button_type = Button.left if button_type == 'left' else Button.right
+        button_type = Button.left if button_type == '左键' else Button.right if button_type == '右键' else None
+        success_func = kwargs.get('success_func', None)
+        fail_func = kwargs.get('fail_func', None)
 
         if check_click_point_color:
             color_list.append(click_point_dict)
@@ -143,13 +147,20 @@ class MouseControler:
         for i in range(0, retry_num+1):
             check_status = MouseControler.check_color(color_list)
             if check_status:
-                tmouse.position = click_point_dict['point']
-                tmouse.click(button_type, click_num)
-                return True
+                if button_type:
+                    tmouse.position = click_point_dict['point']
+                    tmouse.click(button_type, click_num)
+                if success_func:
+                    return True, eval(f'{success_func}({click_point_dict}, **{kwargs})')
+                else:
+                    return True
             else:
                 print('屏幕颜色检测失败, 重试中!')
                 sleep(retry_wait_time / 1000)
-        return False
+        if fail_func:
+            return False, eval(f'{fail_func}({click_point_dict}, **{kwargs})')
+        else:
+            return False
 
     @staticmethod
     def check_color(color_list):
@@ -173,6 +184,28 @@ class MouseControler:
                     return False
             img.close()
             return True
+
+
+def success_callback(click_point_dict, **kwargs):
+    """
+    成功回调函数
+    :param click_point_dict:
+    :param kwargs:
+    :return:
+    """
+    print(click_point_dict)
+    print(kwargs)
+
+
+def fail_callback(click_point_dict, **kwargs):
+    """
+    失败回调函数
+    :param click_point_dict:
+    :param kwargs:
+    :return:
+    """
+    print(click_point_dict)
+    print(kwargs)
 
 
 def main():
